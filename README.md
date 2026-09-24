@@ -95,6 +95,16 @@ CREATE TABLE IF NOT EXISTS blogs (
 
 ---
 
+## Sample Test Data & Database Seed
+- To import the database schema along with test data, run the `seed.sql` script inside MySQL or DBeaver.
+- Pre-configured test scenarios include:
+  - **Admin Account:** `admin@blog.com` / `admin123@password`
+  - **Active User:** `rahim@blog.com` / `rahim123@password`
+  - **Deactivated User:** `karim@blog.com` / `karim123@password` (`isActive = false`)
+- Structured export is also available in `data-export.json`.
+
+---
+
 ## Installation
 
 ### Prerequisites
