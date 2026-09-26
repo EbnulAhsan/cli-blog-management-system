@@ -1,14 +1,11 @@
-const db = require('./db');
-
+const { User, Blog } = require('./db');
 
 async function allUsers() {
     try {
-        const query = `
-      SELECT id, firstname, lastname, email, isActive, role, createAt 
-      FROM users 
-      ORDER BY id ASC
-    `;
-        const [users] = await db.query(query);
+        const users = await User.findAll({
+            attributes: ['id', 'firstname', 'lastname', 'email', 'isActive', 'role', 'createAt'],
+            order: [['id', 'ASC']]
+        });
 
         if (users.length === 0) {
             console.log('\nNo users found in the system.');
@@ -17,7 +14,10 @@ async function allUsers() {
 
         console.log('\n================ ALL USERS ================');
         users.forEach((u) => {
-            console.log(`ID: ${u.id} | Name: ${u.firstname} ${u.lastname} | Email: ${u.email} | Role: ${u.role} | Active: ${Boolean(u.isActive)}`);
+            const userData = u.toJSON();
+            console.log(
+                `ID: ${userData.id} | Name: ${userData.firstname} ${userData.lastname} | Email: ${userData.email} | Role: ${userData.role} | Active: ${Boolean(userData.isActive)}`
+            );
         });
         console.log('===========================================');
     } catch (error) {
@@ -25,17 +25,18 @@ async function allUsers() {
     }
 }
 
-
 async function allUsersBlog() {
     try {
-        const query = `
-      SELECT b.id, b.blogTitle, b.blog, b.category, b.createAt,
-             u.id AS authorId, CONCAT(u.firstname, ' ', u.lastname) AS authorName
-      FROM blogs b
-      JOIN users u ON b.userId = u.id
-      ORDER BY b.createAt DESC
-    `;
-        const [blogs] = await db.query(query);
+        const blogs = await Blog.findAll({
+            include: [
+                {
+                    model: User,
+                    as: 'author',
+                    attributes: ['id', 'firstname', 'lastname']
+                }
+            ],
+            order: [['createAt', 'DESC']]
+        });
 
         if (blogs.length === 0) {
             console.log('\nNo blogs found.');
@@ -44,9 +45,15 @@ async function allUsersBlog() {
 
         console.log('\n================ ALL USERS BLOGS ================');
         blogs.forEach((b) => {
-            console.log(`Blog ID: ${b.id} | Title: ${b.blogTitle} | Category: ${b.category}`);
-            console.log(`Author: ${b.authorName} (User ID: ${b.authorId})`);
-            console.log(`Content: ${b.blog}`);
+            const blogData = b.toJSON();
+            const authorName = blogData.author
+                ? `${blogData.author.firstname} ${blogData.author.lastname}`
+                : 'Unknown';
+            const authorId = blogData.author ? blogData.author.id : 'N/A';
+
+            console.log(`Blog ID: ${blogData.id} | Title: ${blogData.blogTitle} | Category: ${blogData.category}`);
+            console.log(`Author: ${authorName} (User ID: ${authorId})`);
+            console.log(`Content: ${blogData.blog}`);
             console.log('-------------------------------------------------');
         });
     } catch (error) {
@@ -54,15 +61,14 @@ async function allUsersBlog() {
     }
 }
 
-
 async function updateUserStatus(userId, isActive) {
     try {
-        const [result] = await db.query(
-            'UPDATE users SET isActive = ? WHERE id = ?',
-            [isActive, userId]
+        const [updatedCount] = await User.update(
+            { isActive: isActive },
+            { where: { id: userId } }
         );
 
-        if (result.affectedRows === 0) {
+        if (updatedCount === 0) {
             console.log('\nUser not found.');
             return;
         }
@@ -73,12 +79,19 @@ async function updateUserStatus(userId, isActive) {
     }
 }
 
-
 async function deleteUser(userId) {
     try {
-        const [result] = await db.query('DELETE FROM users WHERE id = ?', [userId]);
+        
+        await Blog.destroy({
+            where: { userId: userId }
+        });
 
-        if (result.affectedRows === 0) {
+        // 2. Delete the user
+        const deletedCount = await User.destroy({
+            where: { id: userId }
+        });
+
+        if (deletedCount === 0) {
             console.log('\nUser not found.');
             return;
         }
