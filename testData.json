@@ -1,0 +1,64 @@
+{
+    "accounts": {
+        "admin": {
+            "email": "admin@blog.com",
+            "password": "admin123@password",
+            "role": "admin",
+            "isActive": true,
+            "expectedResult": "Login Successful -> Admin Console Menu"
+        },
+        "activeUser": {
+            "email": "rahim@blog.com",
+            "password": "rahim123@password",
+            "role": "user",
+            "isActive": true,
+            "expectedResult": "Login Successful -> User Console Menu (Shows 2 pre-seeded blogs)"
+        },
+        "deactivatedUser": {
+            "email": "karim@blog.com",
+            "password": "karim123@password",
+            "role": "user",
+            "isActive": false,
+            "expectedResult": "Login Failed -> User is deactivated"
+        }
+    },
+    "sampleBlogsForUser2": [
+        {
+            "id": 1,
+            "userId": 2,
+            "blogTitle": "Mastering Node.js and MySQL Connections",
+            "category": "Backend",
+            "blog": "Step-by-step guide to setting up mysql2 pool in Node CLI apps."
+        },
+        {
+            "id": 2,
+            "userId": 2,
+            "blogTitle": "Why Unit Testing Matters in SDET",
+            "category": "Testing",
+            "blog": "Detailed overview of test coverage, automation and quality assurance."
+        }
+    ],
+    "testPayloads": {
+        "registerNewUser": {
+            "firstname": "Ebnul",
+            "lastname": "Ahsan",
+            "email": "ebnul@test.com",
+            "password": "password123"
+        },
+        "createNewBlog": {
+            "blogTitle": "Mastering Sequelize ORM in CLI Apps",
+            "category": "Database",
+            "blog": "Replacing raw SQL queries with Sequelize models and associations."
+        },
+        "updateBlogPayload": {
+            "blogId": 1,
+            "newTitle": "Mastering Node.js and MySQL with Sequelize",
+            "newContent": "Updated content explaining ORM transactions and connection pooling.",
+            "newCategory": "Backend Engineering"
+        },
+        "searchQueries": {
+            "byPartialTitle": "Node.js",
+            "byExactId": "1"
+        }
+    }
+}
